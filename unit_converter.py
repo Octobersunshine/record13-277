@@ -1,3 +1,4 @@
+import random
 from typing import Dict, List, Tuple
 
 
@@ -73,12 +74,37 @@ def get_supported_units() -> Dict[str, List[Tuple[str, str]]]:
     }
 
 
+RANGE_DEFAULTS = {
+    'length': (0.01, 1000.0),
+    'weight': (0.01, 100.0),
+    'temperature': (-40.0, 100.0),
+}
+
+
+def batch_convert(
+    count: int,
+    category: str,
+    from_unit: str,
+    to_unit: str,
+    value_range: Tuple[float, float] = None,
+) -> List[Tuple[float, float]]:
+    cat = category.lower()
+    lo, hi = value_range if value_range else RANGE_DEFAULTS[cat]
+    results = []
+    for _ in range(count):
+        value = round(random.uniform(lo, hi), 2)
+        converted = convert(value, cat, from_unit, to_unit)
+        results.append((value, converted))
+    return results
+
+
 def print_menu():
     print("\n===== 单位换算服务 =====")
     print("1. 长度换算 (米/公里/英里)")
     print("2. 重量换算 (千克/磅)")
     print("3. 温度换算 (摄氏/华氏)")
     print("4. 查看支持的单位")
+    print("5. 批量随机换算")
     print("0. 退出")
     print("========================")
 
@@ -130,10 +156,43 @@ def handle_list_units():
         print(f"  [{CATEGORY_NAMES[cat]}]: {', '.join(f'{k}({v})' for k, v in units)}")
 
 
+def handle_batch():
+    print("\n--- 批量随机换算 ---")
+    print("可选类别: 1-长度  2-重量  3-温度")
+    try:
+        cat_choice = input("请选择类别 (1/2/3): ").strip()
+        cat_map = {'1': 'length', '2': 'weight', '3': 'temperature'}
+        if cat_choice not in cat_map:
+            print("无效类别选择")
+            return
+        category = cat_map[cat_choice]
+        units_info = get_supported_units()[category]
+        print(f"可用单位: {', '.join(f'{k}({v})' for k, v in units_info)}")
+        from_unit = input("源单位: ").strip().lower()
+        to_unit = input("目标单位: ").strip().lower()
+        count = int(input("生成数量 N: ").strip())
+        if count <= 0:
+            print("数量必须为正整数")
+            return
+        lo = float(input(f"最小值 (默认 {RANGE_DEFAULTS[category][0]}): ").strip() or str(RANGE_DEFAULTS[category][0]))
+        hi = float(input(f"最大值 (默认 {RANGE_DEFAULTS[category][1]}): ").strip() or str(RANGE_DEFAULTS[category][1]))
+        if lo > hi:
+            print("最小值不能大于最大值")
+            return
+        results = batch_convert(count, category, from_unit, to_unit, (lo, hi))
+        print(f"\n批量换算结果 (共 {count} 条):")
+        print("-" * 40)
+        for i, (val, res) in enumerate(results, 1):
+            print(f"  {i:>3}. {val:>10.2f} {from_unit} -> {res:>10.2f} {to_unit}")
+        print("-" * 40)
+    except ValueError as e:
+        print(f"错误: {e}")
+
+
 def main():
     while True:
         print_menu()
-        choice = input("请选择操作 (0-4): ").strip()
+        choice = input("请选择操作 (0-5): ").strip()
         if choice == '0':
             print("再见！")
             break
@@ -145,6 +204,8 @@ def main():
             handle_temperature()
         elif choice == '4':
             handle_list_units()
+        elif choice == '5':
+            handle_batch()
         else:
             print("无效选择，请重试。")
 
