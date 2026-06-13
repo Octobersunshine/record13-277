@@ -20,25 +20,25 @@ CATEGORY_NAMES = {
 
 
 def celsius_to_fahrenheit(c: float) -> float:
-    return c * 9 / 5 + 32
+    return round(c * 9 / 5 + 32, 2)
 
 
 def fahrenheit_to_celsius(f: float) -> float:
-    return (f - 32) * 5 / 9
+    return round((f - 32) * 5 / 9, 2)
 
 
 def convert_length(value: float, from_unit: str, to_unit: str) -> float:
     if from_unit not in LENGTH_UNITS or to_unit not in LENGTH_UNITS:
         raise ValueError(f"不支持的长度单位: {from_unit} -> {to_unit}")
     base_value = value * LENGTH_UNITS[from_unit]['to_base']
-    return base_value / LENGTH_UNITS[to_unit]['to_base']
+    return round(base_value / LENGTH_UNITS[to_unit]['to_base'], 2)
 
 
 def convert_weight(value: float, from_unit: str, to_unit: str) -> float:
     if from_unit not in WEIGHT_UNITS or to_unit not in WEIGHT_UNITS:
         raise ValueError(f"不支持的重量单位: {from_unit} -> {to_unit}")
     base_value = value * WEIGHT_UNITS[from_unit]['to_base']
-    return base_value / WEIGHT_UNITS[to_unit]['to_base']
+    return round(base_value / WEIGHT_UNITS[to_unit]['to_base'], 2)
 
 
 def convert_temperature(value: float, from_unit: str, to_unit: str) -> float:
@@ -91,7 +91,7 @@ def handle_length():
         from_unit = input("源单位 (m/km/mile): ").strip().lower()
         to_unit = input("目标单位 (m/km/mile): ").strip().lower()
         result = convert_length(value, from_unit, to_unit)
-        print(f"结果: {value} {LENGTH_UNITS[from_unit]['name']} = {result:.6f} {LENGTH_UNITS[to_unit]['name']}")
+        print(f"结果: {value} {LENGTH_UNITS[from_unit]['name']} = {result:.2f} {LENGTH_UNITS[to_unit]['name']}")
     except ValueError as e:
         print(f"错误: {e}")
 
@@ -104,7 +104,7 @@ def handle_weight():
         from_unit = input("源单位 (kg/lb): ").strip().lower()
         to_unit = input("目标单位 (kg/lb): ").strip().lower()
         result = convert_weight(value, from_unit, to_unit)
-        print(f"结果: {value} {WEIGHT_UNITS[from_unit]['name']} = {result:.6f} {WEIGHT_UNITS[to_unit]['name']}")
+        print(f"结果: {value} {WEIGHT_UNITS[from_unit]['name']} = {result:.2f} {WEIGHT_UNITS[to_unit]['name']}")
     except ValueError as e:
         print(f"错误: {e}")
 
@@ -118,7 +118,7 @@ def handle_temperature():
         result = convert_temperature(value, from_unit, to_unit)
         from_name = '摄氏' if from_unit == 'c' else '华氏'
         to_name = '摄氏' if to_unit == 'c' else '华氏'
-        print(f"结果: {value} {from_name} = {result:.6f} {to_name}")
+        print(f"结果: {value} {from_name} = {result:.2f} {to_name}")
     except ValueError as e:
         print(f"错误: {e}")
 
